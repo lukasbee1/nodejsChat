@@ -39,6 +39,13 @@ const commands = {
             creator.write('wrong input');
             //creator.write(commands['/clients'](this));
         }
+    }, 
+    '/leaveChat': (clientG) => {
+        chats[0].removeUser(clientG);
+        chats[0].users.forEach(user => {
+            user.write('User with ID: ' + clientG.remotePort + ' leaved the chat.');
+        });
+        clientG.write('You are leave chat');
     }
 }
 
@@ -48,10 +55,6 @@ var server = net.createServer(function (client) {
     serverClients.push(client);
 
     client.on('data', function (data) {
-
-        // Print received client data and length.
-        console.log('Received client data: ' + data);
-        
 
         // if (data.toString().trim() === 'hello')
         //     client.write('world');
@@ -69,10 +72,12 @@ var server = net.createServer(function (client) {
         }
         else if (chats !== []) {
             chats[0].users.forEach(user => {
-                if (chats[0].inChat(user)) {
+                if (chats[0].inChat(user) && user !== client) {
                     user.write('received data from ' + client.remotePort + '. Data: ' + data);
                 }
             });
+        } else {
+            console.log('Received client data: ' + data);
         }
     });
 

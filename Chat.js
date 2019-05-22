@@ -8,6 +8,10 @@ class Chat {
       this.users.push(user);
       console.log('user with ID: ' + user.remotePort + ' added');
   }
+  removeUser(user) {
+    const index = this.users.indexOf(user);
+    this.users.splice(index, 1);
+  }
   setState(state) {
     this.state = state;
   }
