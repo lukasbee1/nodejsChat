@@ -1,12 +1,22 @@
 class Chat {
   constructor(name) {
-      this.users = [];
       this.chatName = name;
+      this.users = [];
+      this.state = false;
   }
   addUser(user) {
       this.users.push(user);
       console.log('user with ID: ' + user.remotePort + ' added');
   }
+  setState(state) {
+    this.state = state;
+  }
+  inChat = (user) => {
+    if (this.users.includes(user))
+        return true;
+    else 
+        return false;
+}
 
 }
 module.exports = Chat; 

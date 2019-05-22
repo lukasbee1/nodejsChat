@@ -31,7 +31,6 @@ function getConn() {
             while ((chunk = process.stdin.read()) !== null) {
                 //process.stdout.write(`data: ${chunk}`);
                 this.write(chunk);
-                client.emit('response', chunk);
             }
         });
         process.stdin.on('end', () => {

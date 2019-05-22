@@ -4,17 +4,6 @@ const net = require('net');
 const serverClients = [];
 const chats = [];
 
-const sendMessage = (chatID, message) => {
-
-}
-const findInterlocutor = (element) => {
-    if (element.remotePort.toString() === interlocutorID.toString())
-        return element;
-}
-const questions = {
-
-}
-
 const commands = {
     '/clients': (clientG) => {
         serverClients.forEach(client => {
@@ -29,23 +18,17 @@ const commands = {
             if (interlocutorID) {
                 const interlocutorReturn = serverClients.filter(client => client.remotePort.toString() === interlocutorID)[0];
 
-                //creator.write('user not found with ID: ' + interlocutorID);
                 if (interlocutorReturn) {
-                    interlocutorReturn.write('Will you connect to chat?[y/n]');
-                    interlocutorReturn.on('response', (msg) => {
-                        console.log('response emmited');
-                        if (msg.toString() === 'yes') {
+                    //interlocutorReturn.write('Will you connect to chat?[y/n]');
+                    interlocutorReturn.write('You are connected to the chat with user ID: ' + creator.remotePort);
 
-                            chat.addUser(interlocutorReturn);
-                            chat.addUser(creator);
-                            chats.push(chat);
-                            console.log('Success! Chat was created!');
-                            creator.write('Success! Chat was created!');
-                            return interlocutorReturn;
-                        } else {
-                            creator.write('Interlocutor refused your suggestion...');
-                        }
-                    });
+                    chat.addUser(interlocutorReturn);
+                    chat.addUser(creator);
+                    chat.setState(true);
+                    chats.push(chat);
+                    console.log('Success! Chat was created!');
+                    creator.write('Success! Chat was created!');
+                    return interlocutorReturn;
                 } else {
                     creator.write('error: interlocutor not found in serverClients');
                 }
@@ -68,6 +51,8 @@ var server = net.createServer(function (client) {
 
         // Print received client data and length.
         console.log('Received client data: ' + data);
+        
+
         // if (data.toString().trim() === 'hello')
         //     client.write('world');
         if (data.toString()[0] === '/') {
@@ -81,6 +66,13 @@ var server = net.createServer(function (client) {
             } else {
                 client.write('Command not found, list of commands: ' + Object.keys(commands).toString());
             }
+        }
+        else if (chats !== []) {
+            chats[0].users.forEach(user => {
+                if (chats[0].inChat(user)) {
+                    user.write('received data from ' + client.remotePort + '. Data: ' + data);
+                }
+            });
         }
     });
 
