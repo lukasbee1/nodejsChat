@@ -1,12 +1,13 @@
 class Chat {
   constructor(name) {
-      this.chatName = name;
-      this.users = [];
-      this.state = false;
+    this.chatName = name;
+    this.users = [];
+    this.state = false;
+    this.id = `f${(+new Date).toString(16)}`;
   }
   addUser(user) {
-      this.users.push(user);
-      console.log('user with ID: ' + user.remotePort + ' added');
+    this.users.push(user);
+    console.log('user with ID: ' + user.remotePort + ' added');
   }
   removeUser(user) {
     const index = this.users.indexOf(user);
@@ -17,10 +18,13 @@ class Chat {
   }
   inChat = (user) => {
     if (this.users.includes(user))
-        return true;
-    else 
-        return false;
-}
+      return true;
+    else
+      return false;
+  }
+  getID() {
+    return this.id;
+  }
 
 }
 module.exports = Chat; 
