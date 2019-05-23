@@ -12,5 +12,8 @@ function createButton() {
   par.appendChild(btn);
 
 }
-createButton();
+
+function getChatByID(id) {
+  
+}
 

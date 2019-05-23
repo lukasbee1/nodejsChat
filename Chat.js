@@ -25,6 +25,8 @@ class Chat {
   getID() {
     return this.id;
   }
-
+  static getChatByID(id, chatList) {
+    return chatList.filter(chat => chat.id.toString() === id.trim())[0];
+  }
 }
 module.exports = Chat; 
