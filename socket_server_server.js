@@ -3,6 +3,8 @@ const net = require('net');
 
 const serverClients = [];
 const chats = [];
+const publicChat = new Chat('public');
+chats.push(publicChat);
 const regexp = '/[0-9]{5}/';
 const regexp2 = '/\/[a-z]+/i';
 const regexp3 = '\/([a-zA-Z]*)'
@@ -73,7 +75,9 @@ const commands = {
 var server = net.createServer(function (client) {
     console.log('client connected, ID: ' + client.remotePort);
     client.chats = [];
+    publicChat.addUser(client);
     serverClients.push(client);
+    client.chats.push(publicChat.getID());
 
     client.on('data', function (data) {
 
@@ -90,8 +94,9 @@ var server = net.createServer(function (client) {
             }
         }
         else if (chats.length > 0 && client.chats.length > 0) {
-            chats.forEach(chat => {
-                if (client.chats.includes(chat.getID())) {
+            chats.forEach(chat=> {
+                console.log(client.chats[0] + chat.getID() + ' xxx ' + client.chats.includes(chat.getID()));
+                if (client.chats.indexOf(chat.getID().trim()) !== -1) {
                     chat.users.forEach(user => {
                         if (chat.inChat(user) && user !== client) {
                             user.write('received data from ' + client.remotePort + '. Data: ' + data);
