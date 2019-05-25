@@ -1,0 +1,40 @@
+{
+  "name": "nodejschat",
+  "version": "1.0.0",
+  "description": "",
+  "main": "socket_server.js",
+  "scripts": {
+    "run": "node socket_server.js",
+    "test": "jest --coverage",
+    "lint": "eslint ./src",
+    "lint:f": "eslint ./src --fix"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "npm run lint:f",
+      "git add"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lukasbee1/nodejsChat.git"
+  },
+  "author": "Maksim Lukashevich",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lukasbee1/nodejsChat/issues"
+  },
+  "dependencies": {
+    "googleapis": "^40.0.0",
+    "hasky": "^3.0.2"
+  },
+  "devDependencies": {
+    "eslint": "^5.16.0"
+  },
+  "homepage": "https://github.com/lukasbee1/nodejsChat#readme"
+}
