@@ -20,6 +20,7 @@ const commands = {
       clientG.write(client.remotePort.toString());
     });
   },
+  // eslint-disable-next-line consistent-return
   '/createChat': (data, creator) => {
     if (data[1]) {
       const interlocutor = getClientByID(data[1]);
