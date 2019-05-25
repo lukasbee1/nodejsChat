@@ -30,11 +30,13 @@
     "url": "https://github.com/lukasbee1/nodejsChat/issues"
   },
   "dependencies": {
-    "googleapis": "^40.0.0",
-    "hasky": "^3.0.2"
+    "googleapis": "^40.0.0"
   },
   "devDependencies": {
-    "eslint": "^5.16.0"
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.17.3",
+    "hasky": "^3.0.2"
   },
   "homepage": "https://github.com/lukasbee1/nodejsChat#readme"
 }
