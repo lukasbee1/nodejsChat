@@ -1,13 +1,12 @@
-const net = require('net');
+const Websocket = require('ws');
 const Chat = require('./Chat');
+
 
 const serverClients = [];
 const chats = [];
 const publicChat = new Chat('public');
 chats.push(publicChat);
-// const regexp = '/[0-9]{5}/';
-// const regexp2 = '/\/[a-z]+/i';
-const regexp3 = '\/([a-zA-Z]*)';
+const regexp = /\/([a-zA-Z]*)/;
 
 const getClientByID = (id) => {
   const clientG = serverClients.filter(client => client.remotePort.toString() === id.trim());
@@ -17,51 +16,51 @@ const getClientByID = (id) => {
 const commands = {
   '/clients': (data, clientG) => {
     serverClients.forEach((client) => {
-      clientG.write(client.remotePort.toString());
+      clientG.send(client.remotePort.toString());
     });
   },
-  // eslint-disable-next-line consistent-return
   '/createChat': (data, creator) => {
     if (data[1]) {
       const interlocutor = getClientByID(data[1]);
       if (interlocutor) {
         const chat = new Chat('asdasd');
-        // interlocutorReturn.write('Will you connect to chat?[y/n]');
+        // interlocutorReturn.send('Will you connect to chat?[y/n]');
         interlocutor.chats.push(chat.getID());
         creator.chats.push(chat.getID());
         chat.addUser(interlocutor);
         chat.addUser(creator);
         chats.push(chat);
         console.log('Success! Chat was created!');
-        creator.write('Success! Chat was created!');
-        interlocutor.write(`You are connected to the chat with user ID: ${creator.remotePort}`);
+        creator.send('Success! Chat was created!');
+        interlocutor.send(`You are connected to the chat with user ID: ${creator.remotePort}`);
         return interlocutor;
       }
       console.log('interlocutor not found');
     } else {
-      creator.write('wrong input...');
+      creator.send('wrong input...');
     }
+    return 'error';
   },
-  '/leaveChat': (data, clientG) => { // needs in fixing
+  '/leaveChat': (data, clientG) => {
     if (data[1]) {
       const currChat = Chat.getChatByID(data[1], chats);
       if (currChat) {
         clientG.chats.splice(chats.indexOf(currChat.getID()), 1);
         currChat.removeUser(clientG);
         currChat.users.forEach((user) => {
-          if (user !== clientG) user.write(`User with ID: ${clientG.remotePort} leaved the chat.`);
+          if (user !== clientG) user.send(`User with ID: ${clientG.remotePort} leaved the chat.`);
         });
-        clientG.write('You are leave chat');
+        clientG.send('You are leave chat');
       } else {
         console.log('chat not found...');
       }
     } else {
-      clientG.write('wrong input, chatlist: ');
+      clientG.send('wrong input, chatlist: ');
     }
   },
   '/chatList': (data, clientG) => {
     chats.forEach((chat) => {
-      clientG.write(chat.getID());
+      clientG.send(chat.getID());
     });
   },
   //   '/addUser': (clientG, user) => { // for creating group chat from dual
@@ -69,7 +68,11 @@ const commands = {
 //   },
 };
 
-const server = net.createServer((client) => {
+const server = new Websocket.Server({
+  port: 7000
+})
+
+server.on('connection', (client) => {
   console.log(`client connected, ID: ${client.remotePort}`);
   // eslint-disable-next-line no-param-reassign
   client.chats = [];
@@ -77,16 +80,16 @@ const server = net.createServer((client) => {
   serverClients.push(client);
   client.chats.push(publicChat.getID());
 
-  client.on('data', (data) => {
+  client.on('message', (data) => {
     // if (data.toString().trim() === 'hello')
-    //     client.write('world');
+    //     client.send('world');
     if (data.toString()[0] === '/') {
       const newData = data.toString().split(' ');
-      const command = data.toString().match(regexp3)[0];
+      const command = data.toString().match(regexp)[0];
       if (commands[command] !== undefined) {
         commands[command](newData, client);
       } else {
-        client.write(`Command not found, list of commands: ${Object.keys(commands).toString()}`);
+        client.send(`Command not found, list of commands: ${Object.keys(commands).toString()}`);
       }
     } else if (chats.length > 0 && client.chats.length > 0) {
       chats.forEach((chat) => {
@@ -94,7 +97,7 @@ const server = net.createServer((client) => {
         if (client.chats.indexOf(chat.getID().trim()) !== -1) {
           chat.users.forEach((user) => {
             if (chat.inChat(user) && user !== client) {
-              user.write(`received data from ${client.remotePort}. Data: ${data}`);
+              user.send(`received data from ${client.remotePort}. Data: ${data}`);
             }
           });
         }
@@ -104,10 +107,10 @@ const server = net.createServer((client) => {
     }
   });
 
-  client.on('end', () => {
+  client.on('close', () => {
     console.log('client disconnected');
   });
 });
-server.listen(7000, () => {
-  console.log('server receiving data...');
-});
+// server.listen(7000, () => {
+//   console.log('server receiving data...');
+// });
