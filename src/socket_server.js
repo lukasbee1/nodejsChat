@@ -1,11 +1,30 @@
 /* eslint-disable no-param-reassign */
+
 const app = require('express')();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
-
+const bodyParser = require('body-parser');
+const jwtDecode = require('jwt-decode');
+const cors = require('cors');
 const Chat = require('./Chat');
 
+
 const regexp = /\/([a-zA-Z]*)/;
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(cors());
+
+server.listen(8080, () => {
+  console.log('Server started on 8080');
+});
+let userData;
+
+app.post('/login', (req, res) => {
+  userData = jwtDecode(req.body.id_token);
+  console.log(userData);
+  res.send(userData);
+});
 
 const clients = [];
 const chats = [];
@@ -110,4 +129,3 @@ io.on('connection', (client) => {
     clientsID.splice(client.id, 1);
   });
 });
-io.listen(8080);

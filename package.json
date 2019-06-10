@@ -30,8 +30,11 @@
     "url": "https://github.com/lukasbee1/nodejsChat/issues"
   },
   "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "googleapis": "^40.0.0",
+    "jwt-decode": "^2.2.0",
     "socket.io": "^2.2.0"
   },
   "devDependencies": {
