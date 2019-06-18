@@ -1,15 +1,22 @@
 /* eslint-disable no-param-reassign */
-
 const app = require('express')();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const bodyParser = require('body-parser');
-const jwtDecode = require('jwt-decode');
+// const jwtDecode = require('jwt-decode');
 const cors = require('cors');
 const Chat = require('./Chat');
+const UserC = require('./User');
 
+const { User, Message, Room } = require('./sequelize');
 
 const regexp = /\/([a-zA-Z]*)/;
+
+const users = [];
+const chats = [];
+const usersInfo = [];
+
+const commonChat = new Chat('common');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -18,30 +25,79 @@ app.use(cors());
 server.listen(8080, () => {
   console.log('Server started on 8080');
 });
-let userData;
 
+// app.post('/authGoogle', (req, res) => {
+//   const userData = jwtDecode(req.body.id_token);
+//   const us = new User(userData.email, 'pass', userData.email); // login pass email
+//   users.push(us);
+//   userLogins.push(us.login);
+//   const { login, id } = userData.email;
+//   const sock = { login, id };
+//   res.send({ sock });
+//   io.emit('clientsUpdated', userLogins);
+// });
+
+let userInfo;
 app.post('/login', (req, res) => {
-  userData = jwtDecode(req.body.id_token);
-  console.log(userData);
-  res.send(userData);
+  const { email, login, name } = req.body;
+  const us = new UserC(email, login, name);
+  commonChat.addUser(us);
+  const { id } = us;
+  users.push(us);
+  userInfo = {
+    email,
+    login,
+    name,
+  }; // data for other clients, without uniqueId, password, ect...
+  usersInfo.push(userInfo);
+
+  io.emit('clientsUpdated', usersInfo);
+  return User.create({
+    uniqueId: us.id,
+    name,
+    email,
+  }).then(() => {
+    if (users) {
+      return res.send({ email, id, login });
+    }
+    return res.status(400).send('Error in insert new record');
+  });
 });
 
-const clients = [];
-const chats = [];
-const clientsID = [];
+app.get('/api/clientsList', (req, res) => {
+  Room.findAll()
+    .then((rooms) => {
+      res.json(rooms);
+      io.emit('clientsUpdated', rooms);
+    });
+});
 
-const ID = () => `_${Math.random().toString(36).substr(2, 5)}`;
-const getClientByID = id => clients.filter(client => client.id === id.trim())[0];
+app.get('/api/messages/:chatId?', (req, res) => {
+  console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+  console.log(req.params);
+  let query;
+  if (req.params.chatId) {
+    query = Room.findAll({
+      include: [
+        { model: Message, where: { roomId: 1 } },
+      ],
+    });
+    return query.then(messages => res.json(messages));
+  }
+  return [{ key: 'error' }];
+});
 
 const commands = {
   '/clients': (data, clientG) => {
-    clients.forEach((client) => {
-      clientG.send(client.id);
+    const names = [];
+    users.forEach((user) => {
+      names.push(`${user.firstName} `);
     });
+    clientG.emit('message', names);
   },
   '/createChat': (data, creator) => {
     if (data[1]) {
-      const interlocutor = getClientByID(data[1]);
+      const interlocutor = UserC.getClientByID(data[1]);
       if (interlocutor) {
         const chat = new Chat('asdasd');
         // interlocutorReturn.send('Will you connect to chat?[y/n]');
@@ -83,26 +139,16 @@ const commands = {
       clientG.send(chat.getID());
     });
   },
-  //   '/addUser': (clientG, user) => { // for creating group chat from dual
-  //   },
 };
-
 io.on('connection', (client) => {
-  client.chats = [];
-  client.id = ID();
-  clientsID.push(client.id);
-  clients.push(client);
-  console.log(`client connected, ID: ${client.id}`);
-  clients.forEach((cl) => {
-    cl.emit('clientsID', clientsID);
-  });
-
+  console.log(`client connected, email: ${1}`);
   client.on('reply', (data) => {
     // console.log(data);
     if (data[0] === '/') {
       const newData = data.toString().split(' ');
       const command = data.toString().match(regexp)[0];
       if (commands[command] !== undefined) {
+        console.log('command');
         commands[command](newData, client);
       } else {
         client.send(`Command not found, list of commands: ${Object.keys(commands).toString()}`);
@@ -125,7 +171,7 @@ io.on('connection', (client) => {
 
   client.on('disconnect', () => {
     console.log('client disconnected');
-    clients.splice(getClientByID(client.id), 1);
-    clientsID.splice(client.id, 1);
+    //  clients.splice(getClientByID(client.id), 1);
+    //  clientsID.splice(client.id, 1);
   });
 });

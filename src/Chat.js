@@ -1,7 +1,6 @@
-/* eslint-disable no-console */
 class Chat {
   constructor(name) {
-    this.chatName = name;
+    this.name = name;
     this.users = [];
     this.state = false;
     this.id = `f${(+new Date()).toString(16)}`;
@@ -9,7 +8,7 @@ class Chat {
 
   addUser(user) {
     this.users.push(user);
-    console.log(`user with ID: ${user.remotePort} added`);
+    console.log(`user with ID: ${user.id} added`);
   }
 
   removeUser(user) {
@@ -22,8 +21,7 @@ class Chat {
   }
 
   inChat(user) {
-    if (this.users.includes(user)) return true;
-    return false;
+    return this.users.includes(user);
   }
 
   getID() {
