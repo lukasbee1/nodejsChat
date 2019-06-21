@@ -8,7 +8,11 @@ const cors = require('cors');
 const Chat = require('./Chat');
 const UserC = require('./User');
 
-const { User, Message, Room } = require('./sequelize');
+const {
+  User,
+  Message,
+  Room,
+} = require('./sequelize');
 
 const regexp = /\/([a-zA-Z]*)/;
 
@@ -18,7 +22,9 @@ const usersInfo = [];
 
 const commonChat = new Chat('common');
 
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({
+  extended: true,
+}));
 app.use(bodyParser.json());
 app.use(cors());
 
@@ -39,10 +45,16 @@ server.listen(8080, () => {
 
 let userInfo;
 app.post('/login', (req, res) => {
-  const { email, login, name } = req.body;
+  const {
+    email,
+    login,
+    name,
+  } = req.body;
   const us = new UserC(email, login, name);
   commonChat.addUser(us);
-  const { id } = us;
+  const {
+    id,
+  } = us;
   users.push(us);
   userInfo = {
     email,
@@ -58,7 +70,11 @@ app.post('/login', (req, res) => {
     email,
   }).then(() => {
     if (users) {
-      return res.send({ email, id, login });
+      return res.send({
+        email,
+        id,
+        login,
+      });
     }
     return res.status(400).send('Error in insert new record');
   });
@@ -72,19 +88,20 @@ app.get('/api/clientsList', (req, res) => {
     });
 });
 
-app.get('/api/messages/:chatId?', (req, res) => {
-  console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+app.get('/api/messages/id:chatId?', (req, res) => {
   console.log(req.params);
   let query;
   if (req.params.chatId) {
-    query = Room.findAll({
-      include: [
-        { model: Message, where: { roomId: 1 } },
-      ],
+    query = Message.findAll({
+      where: {
+        roomId: req.params.chatId,
+      },
     });
     return query.then(messages => res.json(messages));
   }
-  return [{ key: 'error' }];
+  return [{
+    key: 'error',
+  }];
 });
 
 const commands = {

@@ -1,9 +1,9 @@
 module.exports = (sequelize, type) => sequelize.define('room', {
   id: {
     type: type.INTEGER,
-    primaryKey: true,
     autoIncrement: true,
+    primaryKey: true,
+    allowNull: false,
   },
   name: type.STRING,
-  uniqueId: type.STRING,
 });

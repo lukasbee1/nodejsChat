@@ -2,48 +2,56 @@ const Sequelize = require('sequelize');
 const UserModel = require('../models/User');
 const MessageModel = require('../models/Message');
 const RoomModel = require('../models/Room');
-const SocketModel = require('../models/Socket');
+// const SocketModel = require('../models/Socket');
 
 const sequelize = new Sequelize('chatdb', 'maksim', 'pass', {
   host: 'localhost',
   dialect: 'mysql',
 });
 
+// const Socket = SocketModel(sequelize, Sequelize);
 const User = UserModel(sequelize, Sequelize);
-const UserRoom = sequelize.define('user_room', {});
 const Message = MessageModel(sequelize, Sequelize);
 const Room = RoomModel(sequelize, Sequelize);
-const Socket = SocketModel(sequelize, Sequelize);
 
-User.belongsToMany(Room, { through: UserRoom, unique: false });
-Room.belongsToMany(User, { through: UserRoom, unique: false });
+const UserRoom = sequelize.define('UserRoom', {});
 
-Room.hasMany(User);
-Room.hasMany(Message, {
-  foreignKey: {
-    name: 'roomId',
-    allowNull: false,
-  },
-});
-User.hasMany(Socket, {
-  foreignKey: {
-    name: 'userId',
-    allowNull: false,
-  },
-});
+User.belongsToMany(Room, { through: UserRoom });
+Room.belongsToMany(User, { through: UserRoom });
 
-sequelize.sync({ force: true })
+// User.belongsToMany(Room, {
+//   through: Message,
+//   foreignKey: {
+//     name: 'authorId',
+//     allowNull: false,
+//   },
+//  });
+//  Room.belongsToMany(User, {
+//   through: Message,
+//   foreignKey: {
+//     name: 'roomId',
+//     allowNull: false,
+//   },
+//  });
+
+User.hasMany(Message);
+Room.hasMany(Message);
+
+sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
+  .then(() => sequelize
+    .sync({
+      force: true,
+    }))
+  // .then(() => sequelize.query('SET FOREIGN_KEY_CHECKS = 1'))
+  .then(() => Room.create({ name: 'common' }))
+  .then(() => Message.create({ userId: 1, tweet: 'messadfadsfadfadf', roomId: 1 }))
+  .then(() => Message.create({ userId: 1, tweet: 'adsfdasfdsfds', roomId: 1 }))
+  .then(() => Message.create({ userId: 1, tweet: 'sdfdsfdsfv4343434444', roomId: 1 }))
   .then(() => {
-    console.log('Database & tables created!');
-  }).then(() => {
-    Room.create({
-      name: 'common',
-      uniqueId: 7777,
-    }).then((rooms) => {
-      console.log(rooms);
-    });
+    console.log('Database synchronised.');
+  }, (err) => {
+    console.log(err);
   });
-
 module.exports = {
   User,
   Message,

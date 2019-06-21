@@ -21,4 +21,4 @@ class User {
   // static getClientByID = id => clients.filter(client => client.id === id.trim())[0];
 }
 
-export default User;
+module.exports = User;

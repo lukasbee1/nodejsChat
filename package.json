@@ -38,7 +38,7 @@
     "jwt-decode": "^2.2.0",
     "mysql": "^2.17.1",
     "mysql2": "^1.6.5",
-    "sequelize": "^5.8.9",
+    "sequelize": "^5.8.10",
     "sequelize-cli": "^5.5.0",
     "socket.io": "^2.2.0"
   },
