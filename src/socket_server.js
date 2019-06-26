@@ -21,6 +21,7 @@ const chats = [];
 const usersInfo = [];
 
 const commonChat = new Chat('common');
+chats.push(commonChat);
 
 app.use(bodyParser.urlencoded({
   extended: true,
@@ -50,10 +51,11 @@ app.post('/login', (req, res) => {
     login,
     name,
   } = req.body;
+
   const us = new UserC(email, login, name);
-  commonChat.addUser(us);
+
   const {
-    id,
+    uniqueId,
   } = us;
   users.push(us);
   userInfo = {
@@ -61,22 +63,27 @@ app.post('/login', (req, res) => {
     login,
     name,
   }; // data for other clients, without uniqueId, password, ect...
-  usersInfo.push(userInfo);
 
+  commonChat.addUser(us);
+
+  usersInfo.push(userInfo);
   io.emit('clientsUpdated', usersInfo);
   return User.create({
-    uniqueId: us.id,
+    uniqueId: us.uniqueId,
     name,
     email,
-  }).then(() => {
+  }).then((data) => {
     if (users) {
       return res.send({
         email,
-        id,
+        uniqueId,
         login,
+        id: data.id,
       });
     }
-    return res.status(400).send('Error in insert new record');
+    return res.status(400).send({
+      tweet: 'Error in insert new record',
+    });
   });
 });
 
@@ -108,59 +115,80 @@ const commands = {
   '/clients': (data, clientG) => {
     const names = [];
     users.forEach((user) => {
-      names.push(`${user.firstName} `);
+      names.push(`${user.name}; `);
     });
-    clientG.emit('message', names);
+    clientG.emit('message', {
+      tweet: names,
+    });
   },
-  '/createChat': (data, creator) => {
-    if (data[1]) {
-      const interlocutor = UserC.getClientByID(data[1]);
-      if (interlocutor) {
-        const chat = new Chat('asdasd');
-        // interlocutorReturn.send('Will you connect to chat?[y/n]');
-        interlocutor.chats.push(chat.getID());
-        creator.chats.push(chat.getID());
-        chat.addUser(interlocutor);
-        chat.addUser(creator);
-        chats.push(chat);
-        console.log('Success! Chat was created!');
-        creator.send('Success! Chat was created!');
-        interlocutor.send(`You are connected to the chat with user ID: ${creator.id}`);
-        return interlocutor;
-      }
-      console.log('interlocutor not found');
+  '/createChat': (args, creator) => {
+    if (args[1]) {
+      const chat = new Chat(args[1]);
+      Room.create({ name: args[1] });
+      // interlocutorReturn.send('Will you connect to chat?[y/n]');
+      // creator.chats.push(chat.getID());
+      chat.addUser(creator);
+      chats.push(chat);
+      console.log('Success! Chat was created!');
+      creator.send({
+        tweet: 'Success! Chat was created!',
+      });
+      // interlocutor.send({
+      //   tweet: `You are connected to the chat with user ID: ${creator.id}`
+      // });
     } else {
-      creator.send('wrong input...');
+      creator.send({
+        tweet: 'wrong input...',
+      });
     }
     return 'error';
   },
-  '/leaveChat': (data, clientG) => {
-    if (data[1]) {
-      const currChat = Chat.getChatByID(data[1], chats);
+  '/leaveChat': (args, clientG) => {
+    if (args[1]) {
+      const currChat = Chat.getChatByID(args[1], chats);
       if (currChat) {
         clientG.chats.splice(chats.indexOf(currChat.getID()), 1);
         currChat.removeUser(clientG);
         currChat.users.forEach((user) => {
-          if (user !== clientG) user.send(`User with ID: ${clientG.id} leaved the chat.`);
+          if (user !== clientG) {
+            user.send({
+              tweet: `User with ID: ${clientG.id} leaved the chat.`,
+            });
+          }
         });
-        clientG.send('You are leave chat');
+        clientG.send({
+          tweet: 'You are leave chat',
+        });
       } else {
         console.log('chat not found...');
       }
     } else {
-      clientG.send('wrong input, chatlist: ');
+      clientG.send({
+        tweet: 'wrong input, chatlist: ',
+      });
     }
   },
   '/chatList': (data, clientG) => {
     chats.forEach((chat) => {
-      clientG.send(chat.getID());
+      clientG.send({
+        tweet: chat.getID(),
+      });
     });
   },
 };
 io.on('connection', (client) => {
   console.log(`client connected, email: ${1}`);
-  client.on('reply', (data) => {
-    // console.log(data);
+  client.on('reply', (data, userId, roomId) => {
+    console.log(data);
+
+    // save message in db....
+    Message.create({
+      userId,
+      tweet: data,
+      roomId,
+    });
+
+
     if (data[0] === '/') {
       const newData = data.toString().split(' ');
       const command = data.toString().match(regexp)[0];
@@ -168,22 +196,28 @@ io.on('connection', (client) => {
         console.log('command');
         commands[command](newData, client);
       } else {
-        client.send(`Command not found, list of commands: ${Object.keys(commands).toString()}`);
+        client.send({
+          tweet: `Command not found, list of commands: ${Object.keys(commands).toString()}`,
+        });
       }
-    } else if (chats.length > 0 && client.chats.length > 0) {
-      chats.forEach((chat) => {
-        if (client.chats.indexOf(chat.getID().trim()) !== -1) {
-          chat.users.forEach((user) => {
-            if (chat.inChat(user) && user !== client) {
-              user.send(`${data}`);
-            }
-          });
-        }
-      });
-    } else {
-      console.log(`Received client data: ${data}`);
-      // client.send(data);
     }
+    // else {
+    //   chats.forEach((chat) => {
+    //     if (client.chats.indexOf(chat.getID().trim()) !== -1) {
+    //       chat.users.forEach((user) => {
+    //         if (chat.inChat(user) && user !== client) {
+    //           user.send({
+    //             tweet: data,
+    //           });
+    //         }
+    //       });
+    //     }
+    //   });
+    // }
+    // else {
+    //   console.log(`Received client data: ${data}`);
+    //   // client.send(data);
+    // }
   });
 
   client.on('disconnect', () => {

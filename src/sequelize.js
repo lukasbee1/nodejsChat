@@ -34,8 +34,18 @@ Room.belongsToMany(User, { through: UserRoom });
 //   },
 //  });
 
-User.hasMany(Message);
-Room.hasMany(Message);
+User.hasMany(Message, {
+  foreignKey: {
+    name: 'userId',
+    allowNull: false,
+  },
+});
+Room.hasMany(Message, {
+  foreignKey: {
+    name: 'roomId',
+    allowNull: false,
+  },
+});
 
 sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
   .then(() => sequelize

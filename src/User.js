@@ -2,7 +2,7 @@ class User {
   constructor(email, login, name, pass) {
     this.login = login;
     this.name = name;
-    this.id = User.setID();
+    this.uniqueId = User.setID();
     this.pass = pass;
     this.chats = [];
     this.email = email;
