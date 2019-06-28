@@ -96,7 +96,7 @@ app.get('/api/clientsList', (req, res) => {
 });
 
 app.get('/api/messages/id:chatId?', (req, res) => {
-  console.log(req.params);
+  console.log(req.params.chatId);
   let query;
   if (req.params.chatId) {
     query = Message.findAll({
