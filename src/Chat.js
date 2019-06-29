@@ -3,7 +3,7 @@ class Chat {
     this.name = name;
     this.users = [];
     this.state = false;
-    this.id = `f${(+new Date()).toString(16)}`;
+    this.uniqueId = `f${(+new Date()).toString(16)}`;
   }
 
   addUser(user) {
@@ -25,7 +25,7 @@ class Chat {
   }
 
   getID() {
-    return this.id;
+    return this.uniqueId;
   }
 
   static getChatByID(id, chatList) {

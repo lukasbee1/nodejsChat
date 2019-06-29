@@ -21,6 +21,7 @@ const chats = [];
 const usersInfo = [];
 
 const commonChat = new Chat('common');
+
 chats.push(commonChat);
 
 app.use(bodyParser.urlencoded({
@@ -124,9 +125,17 @@ const commands = {
   '/createChat': (args, creator) => {
     if (args[1]) {
       const chat = new Chat(args[1]);
-      Room.create({ name: args[1] });
+      Room.create({ name: args[1] })
+        .then((data) => {
+          Message.create({
+            userId: 1,
+            tweet: 'Chat created',
+            roomId: data.id,
+          });
+        });
       // interlocutorReturn.send('Will you connect to chat?[y/n]');
       // creator.chats.push(chat.getID());
+
       chat.addUser(creator);
       chats.push(chat);
       console.log('Success! Chat was created!');
