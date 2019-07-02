@@ -33,6 +33,10 @@ Room.belongsToMany(User, { through: UserRoom });
 //     allowNull: false,
 //   },
 //  });
+Message.belongsTo(User, {
+  as: 'Sender',
+  foreignKey: 'userId',
+});
 
 User.hasMany(Message, {
   foreignKey: {
@@ -53,7 +57,7 @@ sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
       force: true,
     }))
   // .then(() => sequelize.query('SET FOREIGN_KEY_CHECKS = 1'))
-  .then(() => Room.create({ name: 'common' }))
+  .then(() => Room.create({ name: 'common', userId: 1 }))
   .then(() => Message.create({ userId: 1, tweet: 'messadfadsfadfadf', roomId: 1 }))
   .then(() => Message.create({ userId: 1, tweet: 'adsfdasfdsfds', roomId: 1 }))
   .then(() => Message.create({ userId: 1, tweet: 'sdfdsfdsfv4343434444', roomId: 1 }))
