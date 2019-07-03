@@ -13,6 +13,7 @@ const {
   getUsers,
   getMessages,
   createChat,
+  // addUserToChat,
 } = require('./db_query/index');
 
 const regexp = /\/([a-zA-Z]*)/;
@@ -22,7 +23,6 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json());
 app.use(cors());
-
 server.listen(8080, () => {
   console.log('Server started on 8080');
 });
@@ -109,12 +109,11 @@ const commands = {
 
 io.on('connection', (client) => {
   console.log(`client connected, email: ${1}`);
-
   socketList.addUser(client);
   client.on('reply', (data, userId, roomId) => {
     console.log(data);
     saveMessage(userId, data, roomId);
-
+    client.emit('message', data);
     if (data[0] === '/') {
       const newData = data.toString().split(' ');
       const command = data.toString().match(regexp)[0];

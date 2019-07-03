@@ -1,7 +1,10 @@
+
 const {
   generateUserId,
 } = require('../utils/utils');
+
 const socketList = require('../socketList/socketList');
+
 const {
   User,
   Room,
@@ -9,32 +12,20 @@ const {
   Message,
 } = require('../sequelize');
 
-const postLogin = (req, res) => {
-  const {
-    email,
-    login,
-    name,
-    avatar,
-  } = req.body;
-
-  const uniqueId = generateUserId();
-  return User.create({
-    uniqueId,
-    name,
-    email,
-    avatar,
-  }).then(data => res.send({
-    email,
-    uniqueId,
-    login,
-    id: data.id,
-    avatar,
-  }));
+const addUserToChat = (userId, roomId) => {
+  UserRoom.create({
+    userId,
+    roomId,
+  });
 };
 
 // !!!!!!!!!!!!!!!!!!!emit!!!!!!!!!!!!!!
 const getChats = (req, res) => {
-  Room.findAll()
+  Room.findAll({
+    where: {
+
+    },
+  })
     .then((rooms) => {
       res.json(rooms);
       // io.emit('chatsUpdated', rooms);
@@ -58,21 +49,37 @@ const saveMessage = (userId, tweet, roomId) => {
 };
 
 const getMessages = (req, res) => {
-  let query;
   if (req.params.chatId) {
-    query = Message.findAll({
+    Room.findOne({
       where: {
-        roomId: req.params.chatId,
+        id: req.params.chatId,
       },
-    });
-    return query.then(messages => res.json(messages));
+    })
+      .then((room) => {
+        console.log(room);
+        room.getMessages({
+          order: [
+            ['id'],
+          ],
+          include: {
+            as: 'Sender',
+            model: User,
+          },
+        })
+          .then((messages) => {
+            console.log('___________________________________');
+            console.log(messages);
+
+            res.json(messages);
+          });
+      });
   }
   return [{
     key: 'error',
   }];
 };
 
-const createChat = (name, usersId) => {
+const createChat = (name) => {
   Room.create({
     name,
   })
@@ -82,17 +89,40 @@ const createChat = (name, usersId) => {
         .then((rooms) => {
           socketList.connections[0].emit('clientsUpdated', rooms);
         });
-    })
-    .then((room) => {
-      usersId.forEach((element) => {
-        UserRoom.create({
-          userId: element,
-          roomId: room.id,
-        });
-      });
     });
+  // .then((room) => {
+  // usersId.forEach((element) => {
+  //   UserRoom.create({
+  //     userId: element,
+  //     roomId: room.id,
+  //   });
+  // });
+  // });
 };
-
+const postLogin = (req, res) => {
+  const {
+    email,
+    login,
+    name,
+    avatar,
+  } = req.body;
+  const uniqueId = generateUserId();
+  return User.create({
+    uniqueId,
+    name,
+    email,
+    avatar,
+  }).then((data) => {
+    addUserToChat(data.id, 1);
+    res.send({
+      email,
+      uniqueId,
+      login,
+      id: data.id,
+      avatar,
+    });
+  });
+};
 // const createUser = ()
 module.exports = {
   postLogin,
@@ -101,4 +131,5 @@ module.exports = {
   saveMessage,
   getMessages,
   createChat,
+  addUserToChat,
 };

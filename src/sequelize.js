@@ -33,22 +33,21 @@ Room.belongsToMany(User, { through: UserRoom });
 //     allowNull: false,
 //   },
 //  });
-Message.belongsTo(User, {
-  as: 'Sender',
-  foreignKey: 'userId',
+Room.hasMany(Message, {
+  foreignKey: {
+    name: 'roomId',
+    allowNull: false,
+  },
 });
-
 User.hasMany(Message, {
   foreignKey: {
     name: 'userId',
     allowNull: false,
   },
 });
-Room.hasMany(Message, {
-  foreignKey: {
-    name: 'roomId',
-    allowNull: false,
-  },
+Message.belongsTo(User, {
+  as: 'Sender',
+  foreignKey: 'userId',
 });
 
 sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
@@ -57,17 +56,18 @@ sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
       force: true,
     }))
   // .then(() => sequelize.query('SET FOREIGN_KEY_CHECKS = 1'))
-  .then(() => Room.create({ name: 'common', userId: 1 }))
+  .then(() => Room.create({ name: 'common' }))
+  // .then(room => UserRoom.create({ userId: 1, roomId: room.id }))
   .then(() => Message.create({ userId: 1, tweet: 'messadfadsfadfadf', roomId: 1 }))
   .then(() => Message.create({ userId: 1, tweet: 'adsfdasfdsfds', roomId: 1 }))
-  .then(() => Message.create({ userId: 1, tweet: 'sdfdsfdsfv4343434444', roomId: 1 }))
   .then(() => {
     console.log('Database synchronised.');
   }, (err) => {
     console.log(err);
   });
 module.exports = {
-  User,
   Message,
+  User,
   Room,
+  UserRoom,
 };
