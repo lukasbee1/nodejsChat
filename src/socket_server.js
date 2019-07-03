@@ -10,6 +10,7 @@ const {
   saveMessage,
   postLogin,
   getChats,
+  getUsers,
   getMessages,
   createChat,
 } = require('./db_query/index');
@@ -38,7 +39,8 @@ server.listen(8080, () => {
 // });
 
 app.post('/login', postLogin);
-app.get('/api/clientsList', getChats);
+app.get('/api/chatsList', getChats);
+app.get('/api/usersList', getUsers);
 app.get('/api/messages/id:chatId?', getMessages);
 
 const commands = {

@@ -9,4 +9,5 @@ module.exports = (sequelize, type) => sequelize.define('user', {
   email: type.STRING,
   password: type.STRING,
   uniqueId: type.STRING,
+  avatar: type.STRING,
 });

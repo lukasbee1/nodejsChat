@@ -14,6 +14,7 @@ const postLogin = (req, res) => {
     email,
     login,
     name,
+    avatar,
   } = req.body;
 
   const uniqueId = generateUserId();
@@ -21,11 +22,13 @@ const postLogin = (req, res) => {
     uniqueId,
     name,
     email,
+    avatar,
   }).then(data => res.send({
     email,
     uniqueId,
     login,
     id: data.id,
+    avatar,
   }));
 };
 
@@ -34,7 +37,15 @@ const getChats = (req, res) => {
   Room.findAll()
     .then((rooms) => {
       res.json(rooms);
-      // io.emit('clientsUpdated', rooms);
+      // io.emit('chatsUpdated', rooms);
+    });
+};
+
+const getUsers = (req, res) => {
+  User.findAll()
+    .then((users) => {
+      res.json(users);
+      // io.emit('clientsUpdated', users);
     });
 };
 
@@ -86,6 +97,7 @@ const createChat = (name, usersId) => {
 module.exports = {
   postLogin,
   getChats,
+  getUsers,
   saveMessage,
   getMessages,
   createChat,

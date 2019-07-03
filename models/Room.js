@@ -6,4 +6,5 @@ module.exports = (sequelize, type) => sequelize.define('room', {
     allowNull: false,
   },
   name: type.STRING,
+  avatar: type.STRING,
 });
