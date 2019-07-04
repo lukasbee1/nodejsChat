@@ -22,9 +22,14 @@ const addUserToChat = (userId, roomId) => {
 // !!!!!!!!!!!!!!!!!!!emit!!!!!!!!!!!!!!
 const getChats = (req, res) => {
   Room.findAll({
-    where: {
-
-    },
+    include: [
+      {
+        model: User,
+        where: {
+          id: req.params.id,
+        },
+      },
+    ],
   })
     .then((rooms) => {
       res.json(rooms);

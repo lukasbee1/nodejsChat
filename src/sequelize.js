@@ -19,20 +19,6 @@ const UserRoom = sequelize.define('UserRoom', {});
 User.belongsToMany(Room, { through: UserRoom });
 Room.belongsToMany(User, { through: UserRoom });
 
-// User.belongsToMany(Room, {
-//   through: Message,
-//   foreignKey: {
-//     name: 'authorId',
-//     allowNull: false,
-//   },
-//  });
-//  Room.belongsToMany(User, {
-//   through: Message,
-//   foreignKey: {
-//     name: 'roomId',
-//     allowNull: false,
-//   },
-//  });
 Room.hasMany(Message, {
   foreignKey: {
     name: 'roomId',
@@ -57,7 +43,7 @@ sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
     }))
   // .then(() => sequelize.query('SET FOREIGN_KEY_CHECKS = 1'))
   .then(() => Room.create({ name: 'common' }))
-  // .then(room => UserRoom.create({ userId: 1, roomId: room.id }))
+  .then(room => UserRoom.create({ userId: 1, roomId: room.id }))
   .then(() => Message.create({ userId: 1, tweet: 'messadfadsfadfadf', roomId: 1 }))
   .then(() => Message.create({ userId: 1, tweet: 'adsfdasfdsfds', roomId: 1 }))
   .then(() => {

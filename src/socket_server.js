@@ -39,7 +39,7 @@ server.listen(8080, () => {
 // });
 
 app.post('/login', postLogin);
-app.get('/api/chatsList', getChats);
+app.get('/api/chatsList/userId:id?', getChats);
 app.get('/api/usersList', getUsers);
 app.get('/api/messages/id:chatId?', getMessages);
 
