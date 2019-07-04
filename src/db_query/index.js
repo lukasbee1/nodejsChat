@@ -61,7 +61,6 @@ const getMessages = (req, res) => {
       },
     })
       .then((room) => {
-        console.log(room);
         room.getMessages({
           order: [
             ['id'],
@@ -72,9 +71,6 @@ const getMessages = (req, res) => {
           },
         })
           .then((messages) => {
-            console.log('___________________________________');
-            console.log(messages);
-
             res.json(messages);
           });
       });
@@ -117,13 +113,13 @@ const postLogin = (req, res) => {
     name,
     email,
     avatar,
-  }).then((data) => {
-    addUserToChat(data.id, 1);
+  }).then((user) => {
+    addUserToChat(user.id, 1);
     res.send({
       email,
       uniqueId,
       login,
-      id: data.id,
+      id: user.id,
       avatar,
     });
   });

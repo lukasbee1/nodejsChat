@@ -43,9 +43,9 @@ sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
     }))
   // .then(() => sequelize.query('SET FOREIGN_KEY_CHECKS = 1'))
   .then(() => Room.create({ name: 'common' }))
-  .then(room => UserRoom.create({ userId: 1, roomId: room.id }))
-  .then(() => Message.create({ userId: 1, tweet: 'messadfadsfadfadf', roomId: 1 }))
-  .then(() => Message.create({ userId: 1, tweet: 'adsfdasfdsfds', roomId: 1 }))
+  // .then(room => UserRoom.create({ userId: 1, roomId: room.id }))
+  // .then(() => Message.create({ userId: 1, tweet: 'messadfadsfadfadf', roomId: 1 }))
+  // .then(() => Message.create({ userId: 1, tweet: 'adsfdasfdsfds', roomId: 1 }))
   .then(() => {
     console.log('Database synchronised.');
   }, (err) => {

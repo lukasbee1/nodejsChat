@@ -106,14 +106,18 @@ const commands = {
   //   // });
   // },
 };
-
 io.on('connection', (client) => {
   console.log(`client connected, email: ${1}`);
   socketList.addUser(client);
-  client.on('reply', (data, userId, roomId) => {
+  client.on('activeChat', (active, prev) => {
+    client.leave(prev);
+    client.join(active);
+  });
+  client.on('reply', (data, user, roomId) => {
     console.log(data);
-    saveMessage(userId, data, roomId);
-    client.emit('message', data);
+    io.sockets.in(roomId).emit('reply', data, user, roomId);
+    saveMessage(user.id, data, roomId);
+
     if (data[0] === '/') {
       const newData = data.toString().split(' ');
       const command = data.toString().match(regexp)[0];
