@@ -21,8 +21,6 @@ const addUserToChat = (userId, roomId) => {
 
 // !!!!!!!!!!!!!!!!!!!emit!!!!!!!!!!!!!!
 const getChats = (req, res) => {
-  console.log('get chats');
-  console.log(req);
   Room.findAll({
     include: [
       {
