@@ -3,7 +3,7 @@ const {
   generateUserId,
 } = require('../utils/utils');
 
-const socketList = require('../socketList/socketList');
+// const socketList = require('../socketList/socketList');
 
 const {
   User,
@@ -82,16 +82,29 @@ const getMessages = (req, res) => {
   }];
 };
 
-const createChat = (name) => {
+const createChat = (req) => {
+  const { name, usersId } = req.body;
   Room.create({
     name,
   })
     .then((data) => {
       saveMessage(1, 'Chat created', data.id);
-      Room.findAll()
-        .then((rooms) => {
-          socketList.connections[0].emit('clientsUpdated', rooms);
-        });
+      usersId.forEach((userId) => {
+        addUserToChat(userId, data.id);
+      });
+      // User.findAll({
+      //   include: [
+      //     {
+      //       model: Room,
+      //       where: {
+      //         id: data.id,
+      //       },
+      //     },
+      //   ],
+      // })
+      //   .then((users) => {
+      //     socketList.connections[0].emit('chatsUpdated', users);
+      //   });
     });
   // .then((room) => {
   // usersId.forEach((element) => {

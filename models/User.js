@@ -6,7 +6,10 @@ module.exports = (sequelize, type) => sequelize.define('user', {
     allowNull: false,
   },
   name: type.STRING,
-  email: type.STRING,
+  email: {
+    type: type.STRING,
+    unique: true,
+  },
   password: type.STRING,
   uniqueId: type.STRING,
   avatar: type.STRING,
