@@ -21,6 +21,8 @@ const addUserToChat = (userId, roomId) => {
 
 // !!!!!!!!!!!!!!!!!!!emit!!!!!!!!!!!!!!
 const getChats = (req, res) => {
+  console.log('get chats');
+  console.log(req);
   Room.findAll({
     include: [
       {
@@ -122,7 +124,12 @@ const postLogin = (req, res) => {
       id: user.id,
       avatar,
     });
-  });
+  })
+    .catch((error) => {
+      console.log(`There has been a problem with your fetch operation: ${error.message}`);
+      // ADD THIS THROW error
+      throw error;
+    });
 };
 // const createUser = ()
 module.exports = {
