@@ -16,10 +16,9 @@ const addUserToChat = (userId, roomId) => {
   UserRoom.create({
     userId,
     roomId,
-  });
+  }); // must emit added user!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 };
 
-// !!!!!!!!!!!!!!!!!!!emit!!!!!!!!!!!!!!
 const getChats = (req, res) => {
   Room.findAll({
     include: [
@@ -33,6 +32,7 @@ const getChats = (req, res) => {
   })
     .then((rooms) => {
       res.json(rooms);
+      console.log(rooms);
       // io.emit('chatsUpdated', rooms);
     });
 };
@@ -80,16 +80,18 @@ const getMessages = (req, res) => {
   }];
 };
 
-const createChat = (req) => {
-  const { name, usersId } = req.body;
+const createChat = (req, res) => {
+  const { name, users } = req.body;
   Room.create({
     name,
   })
     .then((data) => {
+      console.log('chat created, id: ', data.id);
       saveMessage(1, 'Chat created', data.id);
-      usersId.forEach((userId) => {
-        addUserToChat(userId, data.id);
+      users.forEach((user) => {
+        addUserToChat(user.id, data.id);
       });
+      res.send(data);
       // User.findAll({
       //   include: [
       //     {
@@ -103,14 +105,12 @@ const createChat = (req) => {
       //   .then((users) => {
       //     socketList.connections[0].emit('chatsUpdated', users);
       //   });
+    })
+    .catch((error) => {
+      console.log(`There has been a problem with your fetch operation: ${error.message}`);
+      // ADD THIS THROW error
+      throw error;
     });
-  // .then((room) => {
-  // usersId.forEach((element) => {
-  //   UserRoom.create({
-  //     userId: element,
-  //     roomId: room.id,
-  //   });
-  // });
   // });
 };
 const postLogin = (req, res) => {
