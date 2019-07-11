@@ -1,5 +1,8 @@
 /* eslint-disable no-param-reassign */
-const app = require('express')();
+const express = require('express');
+
+const app = express();
+const path = require('path');
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const bodyParser = require('body-parser');
@@ -13,11 +16,11 @@ const {
   getUsers,
   getMessages,
   createChat,
-  // addUserToChat,
 } = require('./db_query/index');
 
-const regexp = /\/([a-zA-Z]*)/;
+// const regexp = /\/([a-zA-Z]*)/;
 
+app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({
   extended: true,
 }));
@@ -27,122 +30,29 @@ server.listen(8080, () => {
   console.log('Server started on 8080');
 });
 
-// app.post('/authGoogle', (req, res) => {
-//   const userData = jwtDecode(req.body.id_token);
-//   const us = new User(userData.email, 'pass', userData.email); // login pass email
-//   users.push(us);
-//   userLogins.push(us.login);
-//   const { login, id } = userData.email;
-//   const sock = { login, id };
-//   res.send({ sock });
-//   io.emit('clientsUpdated', userLogins);
-// });
-
 app.post('/login', postLogin);
 app.post('/createChat', createChat);
 app.get('/api/chatsList/userId:id?', getChats);
 app.get('/api/usersList', getUsers);
 app.get('/api/messages/id:chatId?', getMessages);
 
-const commands = {
-  // '/clients': (data, clientG) => {
-  //   const names = [];
-  //   users.forEach((user) => {
-  //     names.push(`${user.name}; `);
-  //   });
-  //   clientG.emit('reply', {
-  //     tweet: names,
-  //   });
-  // },
-  '/createChat': (args, creator) => {
-    if (args[1]) {
-      createChat(args[1]);
-      // interlocutorReturn.send('Will you connect to chat?[y/n]');
-      // creator.chats.push(chat.getID());
-
-      console.log('Success! Chat was created!');
-      creator.send({
-        tweet: 'Success! Chat was created!',
-      });
-      // interlocutor.send({
-      //   tweet: `You are connected to the chat with user ID: ${creator.id}`
-      // });
-    } else {
-      creator.send({
-        tweet: 'wrong input...',
-      });
-    }
-    return 'error';
-  },
-  // '/leaveChat': (args, clientG) => {
-  //   // if (args[1]) {
-  //   //   const currChat = Chat.getChatByID(args[1], chats);
-  //   //   if (currChat) {
-  //   //     clientG.chats.splice(chats.indexOf(currChat.getID()), 1);
-  //   //     currChat.removeUser(clientG);
-  //   //     currChat.users.forEach((user) => {
-  //   //       if (user !== clientG) {
-  //   //         user.send({
-  //   //           tweet: `User with ID: ${clientG.id} leaved the chat.`,
-  //   //         });
-  //   //       }
-  //   //     });
-  //   //     clientG.send({
-  //   //       tweet: 'You are leave chat',
-  //   //     });
-  //   //   } else {
-  //   //     console.log('chat not found...');
-  //   //   }
-  //   // } else {
-  //   //   clientG.send({
-  //   //     tweet: 'wrong input, chatlist: ',
-  //   //   });
-  //   // }
-  // },
-  // '/chatList': (data, clientG) => {
-  //   // chats.forEach((chat) => {
-  //   //   clientG.send({
-  //   //     tweet: chat.getID(),
-  //   //   });
-  //   // });
-  // },
-};
 io.on('connection', (client) => {
+  let prev = null;
   console.log('client connected');
   client.on('activeChat', (active) => {
-    // client.leave(prev);
-    console.log(active);
-    console.log('________________________________');
+    client.leave(prev);
     client.join(active);
+    prev = active;
   });
   client.on('reply', (data, user, roomId) => {
     console.log(data);
     io.sockets.in(roomId).emit('reply', data, user, roomId);
     saveMessage(user.id, data, roomId);
-
-    if (data[0] === '/') {
-      const newData = data.toString().split(' ');
-      const command = data.toString().match(regexp)[0];
-      if (commands[command]) {
-        console.log('command');
-        commands[command](newData, client);
-      }
-
-      // else {
-      //   console.log('not command');
-      //   client.send(
-      //     `Command not found, list of commands: ${Object.keys(commands).toString()}`,
-      //   );
-      // }
-    }
   });
 
-  // io.emit('clientsUpdated', usersInfo);
   client.on('disconnect', () => {
     console.log('client disconnected');
     socketList.removeUser(client);
-    //  clients.splice(getClientByID(client.id), 1);
-    //  clientsID.splice(client.id, 1);
   });
   client.on('uniqueId', (uniqueId) => {
     client.uniqueId = uniqueId;
