@@ -3,7 +3,7 @@ const {
   generateUserId,
 } = require('../utils/utils');
 
-// const socketList = require('../socketList/socketList');
+const socketList = require('../socketList/socketList');
 
 const {
   User,
@@ -32,7 +32,7 @@ const getChats = (req, res) => {
   })
     .then((rooms) => {
       res.json(rooms);
-      console.log(rooms);
+      // console.log(rooms);
       // io.emit('chatsUpdated', rooms);
     });
 };
@@ -90,21 +90,12 @@ const createChat = (req, res) => {
       saveMessage(1, 'Chat created', data.id);
       users.forEach((user) => {
         addUserToChat(user.id, data.id);
+        socketList.connections.map(conn => (conn.uniqueId === user.uniqueId ? conn.emit('chatInvite', data) : null));
       });
       res.send(data);
-      // User.findAll({
-      //   include: [
-      //     {
-      //       model: Room,
-      //       where: {
-      //         id: data.id,
-      //       },
-      //     },
-      //   ],
-      // })
-      //   .then((users) => {
-      //     socketList.connections[0].emit('chatsUpdated', users);
-      //   });
+    })
+    .then(() => {
+
     })
     .catch((error) => {
       console.log(`There has been a problem with your fetch operation: ${error.message}`);

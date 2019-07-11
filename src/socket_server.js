@@ -108,10 +108,11 @@ const commands = {
   // },
 };
 io.on('connection', (client) => {
-  console.log(`client connected, email: ${1}`);
-  socketList.addUser(client);
-  client.on('activeChat', (active, prev) => {
-    client.leave(prev);
+  console.log('client connected');
+  client.on('activeChat', (active) => {
+    // client.leave(prev);
+    console.log(active);
+    console.log('________________________________');
     client.join(active);
   });
   client.on('reply', (data, user, roomId) => {
@@ -142,5 +143,9 @@ io.on('connection', (client) => {
     socketList.removeUser(client);
     //  clients.splice(getClientByID(client.id), 1);
     //  clientsID.splice(client.id, 1);
+  });
+  client.on('uniqueId', (uniqueId) => {
+    client.uniqueId = uniqueId;
+    socketList.addUser(client);
   });
 });
