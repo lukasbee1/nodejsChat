@@ -90,12 +90,10 @@ const createChat = (req, res) => {
     });
 };
 const postLogin = (req, res) => {
-  console.log('post Login!!!!!!!!!!!!!');
   const {
     login,
     password,
   } = req.body;
-  console.log(login, password);
   return User.findOne({
     where: {
       login,
@@ -103,7 +101,6 @@ const postLogin = (req, res) => {
   }).then((user) => {
     if (user) {
       if (user.password === password) {
-        console.log(user);
         res.send({
           login,
           email: user.email,
@@ -111,7 +108,7 @@ const postLogin = (req, res) => {
           id: user.id,
           avatar: user.avatar,
         });
-      }
+      } else res.send({ error: 'invalid email or password' });
     } else {
       res.send({ error: 'invalid email or password' });
     }

@@ -8,13 +8,17 @@ module.exports = (sequelize, type) => sequelize.define('user', {
   login: {
     type: type.STRING,
     unique: true,
+    allowNull: false,
   },
   email: {
     type: type.STRING,
     unique: true,
   },
   name: type.STRING,
-  password: type.STRING,
+  password: {
+    type: type.STRING,
+    allowNull: false,
+  },
   uniqueId: type.STRING,
   avatar: type.STRING,
 });
