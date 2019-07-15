@@ -9,7 +9,6 @@ const sequelize = new Sequelize('chatdb', 'maksim', 'pass', {
   dialect: 'mysql',
 });
 
-// const Socket = SocketModel(sequelize, Sequelize);
 const User = UserModel(sequelize, Sequelize);
 const Message = MessageModel(sequelize, Sequelize);
 const Room = RoomModel(sequelize, Sequelize);
@@ -39,9 +38,9 @@ Message.belongsTo(User, {
 sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
   .then(() => sequelize
     .sync({
-      force: true,
+      force: false,
     }))
-  // .then(() => sequelize.query('SET FOREIGN_KEY_CHECKS = 1'))
+  .then(() => sequelize.query('SET FOREIGN_KEY_CHECKS = 1'))
   .then(() => Room.create({ name: 'common' }))
   // .then(room => UserRoom.create({ userId: 1, roomId: room.id }))
   // .then(() => Message.create({ userId: 1, tweet: 'messadfadsfadfadf', roomId: 1 }))

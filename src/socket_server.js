@@ -12,13 +12,12 @@ const socketList = require('./socketList/socketList');
 const {
   saveMessage,
   postLogin,
+  postRegister,
   getChats,
   getUsers,
   getMessages,
   createChat,
 } = require('./db_query/index');
-
-// const regexp = /\/([a-zA-Z]*)/;
 
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({
@@ -31,6 +30,7 @@ server.listen(8080, () => {
 });
 
 app.post('/login', postLogin);
+app.post('/register', postRegister);
 app.post('/createChat', createChat);
 app.get('/api/chatsList/userId:id?', getChats);
 app.get('/api/usersList', getUsers);

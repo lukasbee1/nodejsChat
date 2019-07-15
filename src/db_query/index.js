@@ -1,22 +1,12 @@
 
-const {
-  generateUserId,
-} = require('../utils/utils');
-
+const { generateUserId } = require('../utils/utils');
 const socketList = require('../socketList/socketList');
-
 const {
-  User,
-  Room,
-  UserRoom,
-  Message,
+  User, Room, UserRoom, Message,
 } = require('../sequelize');
 
 const addUserToChat = (userId, roomId) => {
-  UserRoom.create({
-    userId,
-    roomId,
-  }); // must emit added user!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  UserRoom.create({ userId, roomId }); // must emit added user!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 };
 
 const getChats = (req, res) => {
@@ -32,8 +22,6 @@ const getChats = (req, res) => {
   })
     .then((rooms) => {
       res.json(rooms);
-      // console.log(rooms);
-      // io.emit('chatsUpdated', rooms);
     });
 };
 
@@ -41,7 +29,6 @@ const getUsers = (req, res) => {
   User.findAll()
     .then((users) => {
       res.json(users);
-      // io.emit('clientsUpdated', users);
     });
 };
 
@@ -99,41 +86,73 @@ const createChat = (req, res) => {
     })
     .catch((error) => {
       console.log(`There has been a problem with your fetch operation: ${error.message}`);
-      // ADD THIS THROW error
       throw error;
     });
-  // });
 };
 const postLogin = (req, res) => {
+  console.log('post Login!!!!!!!!!!!!!');
+  const {
+    login,
+    password,
+  } = req.body;
+  console.log(login, password);
+  return User.findOne({
+    where: {
+      login,
+    },
+  }).then((user) => {
+    if (user) {
+      if (user.password === password) {
+        console.log(user);
+        res.send({
+          login,
+          email: user.email,
+          uniqueId: user.uniqueId,
+          id: user.id,
+          avatar: user.avatar,
+        });
+      }
+    } else {
+      res.send({ error: 'invalid email or password' });
+    }
+  })
+    .catch((error) => {
+      console.log(`There has been a problem with your fetch operation: ${error.message}`);
+      throw error;
+    });
+};
+
+const postRegister = (req, res) => {
   const {
     email,
     login,
     name,
     avatar,
+    password,
   } = req.body;
   const uniqueId = generateUserId();
   return User.create({
+    login,
+    email,
     uniqueId,
     name,
-    email,
     avatar,
+    password,
   }).then((user) => {
     addUserToChat(user.id, 1);
     res.send({
+      avatar,
       email,
       uniqueId,
       login,
       id: user.id,
-      avatar,
     });
   })
     .catch((error) => {
       console.log(`There has been a problem with your fetch operation: ${error.message}`);
-      // ADD THIS THROW error
       throw error;
     });
 };
-// const createUser = ()
 module.exports = {
   postLogin,
   getChats,
@@ -142,4 +161,5 @@ module.exports = {
   getMessages,
   createChat,
   addUserToChat,
+  postRegister,
 };
