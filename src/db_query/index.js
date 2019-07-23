@@ -71,6 +71,7 @@ const createChat = (req, res) => {
   const { name, users } = req.body;
   Room.create({
     name,
+
   })
     .then((data) => {
       console.log('chat created, id: ', data.id);
