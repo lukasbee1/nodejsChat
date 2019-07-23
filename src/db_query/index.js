@@ -32,13 +32,21 @@ const getUsers = (req, res) => {
     });
 };
 
-const saveMessage = (userId, tweet, roomId) => (
-  Message.create({
-    userId,
+const saveMessage = (sender, tweet, roomId) => Message.create({
+  userId: sender.id,
+  tweet,
+  roomId,
+}).then(() => (Message.findOne({
+  where: {
     tweet,
     roomId,
-  })
-);
+  },
+  include: {
+    as: 'sender',
+    model: User,
+    attributes: ['name', 'login', 'uniqueId', 'avatar', 'id'],
+  },
+})));
 
 const getMessages = (req, res) => {
   if (req.params.chatId) {
@@ -74,15 +82,12 @@ const createChat = (req, res) => {
   })
     .then((data) => {
       console.log('chat created, id: ', data.id);
-      saveMessage(1, 'Chat created', data.id);
+      // saveMessage(1, 'Chat created', data.id);
       users.forEach((user) => {
         addUserToChat(user.id, data.id);
         socketList.connections.map(conn => (conn.uniqueId === user.uniqueId ? conn.emit('chatInvite', data) : null));
       });
       res.send(data);
-    })
-    .then(() => {
-
     })
     .catch((error) => {
       console.log(`There has been a problem with your fetch operation: ${error.message}`);

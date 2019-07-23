@@ -41,9 +41,9 @@ io.on('connection', (client) => {
   client.on('activeChat', (active) => {
     client.join(active);
   });
-  client.on('reply', ({ tweet, sender, roomId }) => {
+  client.on('message', ({ tweet, sender, roomId }) => {
     console.log(tweet);
-    saveMessage(sender.id, tweet, roomId).then((mess) => {
+    saveMessage(sender, tweet, roomId).then((mess) => {
       io.sockets.in(roomId).emit('reply', mess);
     });
   });
