@@ -31,7 +31,7 @@ User.hasMany(Message, {
   },
 });
 Message.belongsTo(User, {
-  as: 'Sender',
+  as: 'sender',
   foreignKey: 'userId',
 });
 
@@ -41,7 +41,7 @@ sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
       force: false,
     }))
   .then(() => sequelize.query('SET FOREIGN_KEY_CHECKS = 1'))
-  // .then(() => Room.create({ name: 'common', avatar: 'img/group.png' }))
+  .then(() => Room.findOrCreate({ where: { name: 'common', avatar: 'img/group.png' } }))
   // .then(room => UserRoom.create({ userId: 1, roomId: room.id }))
   // .then(() => Message.create({ userId: 1, tweet: 'messadfadsfadfadf', roomId: 1 }))
   // .then(() => Message.create({ userId: 1, tweet: 'adsfdasfdsfds', roomId: 1 }))

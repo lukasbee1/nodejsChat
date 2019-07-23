@@ -6,7 +6,7 @@ const {
 } = require('../sequelize');
 
 const addUserToChat = (userId, roomId) => {
-  UserRoom.create({ userId, roomId }); // must emit added user!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  UserRoom.create({ userId, roomId }); // must emit added user!!!!!!!!!
 };
 
 const getChats = (req, res) => {
@@ -32,13 +32,13 @@ const getUsers = (req, res) => {
     });
 };
 
-const saveMessage = (userId, tweet, roomId) => {
+const saveMessage = (userId, tweet, roomId) => (
   Message.create({
     userId,
     tweet,
     roomId,
-  });
-};
+  })
+);
 
 const getMessages = (req, res) => {
   if (req.params.chatId) {
@@ -53,13 +53,12 @@ const getMessages = (req, res) => {
             ['id'],
           ],
           include: {
-            as: 'Sender',
+            as: 'sender',
             model: User,
+            attributes: ['name', 'login', 'uniqueId', 'avatar', 'id'],
           },
         })
-          .then((messages) => {
-            res.json(messages);
-          });
+          .then(messages => (res.json(messages)));
       });
   }
   return [{
@@ -68,10 +67,10 @@ const getMessages = (req, res) => {
 };
 
 const createChat = (req, res) => {
-  const { name, users } = req.body;
+  const { name, users, avatar } = req.body;
   Room.create({
     name,
-
+    avatar,
   })
     .then((data) => {
       console.log('chat created, id: ', data.id);

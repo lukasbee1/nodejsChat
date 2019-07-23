@@ -37,17 +37,15 @@ app.get('/api/usersList', getUsers);
 app.get('/api/messages/id:chatId?', getMessages);
 
 io.on('connection', (client) => {
-  let prev = null;
   console.log('client connected');
   client.on('activeChat', (active) => {
-    client.leave(prev);
     client.join(active);
-    prev = active;
   });
-  client.on('reply', (data, user, roomId) => {
-    console.log(data);
-    io.sockets.in(roomId).emit('reply', data, user, roomId);
-    saveMessage(user.id, data, roomId);
+  client.on('reply', ({ tweet, sender, roomId }) => {
+    console.log(tweet);
+    saveMessage(sender.id, tweet, roomId).then((mess) => {
+      io.sockets.in(roomId).emit('reply', mess);
+    });
   });
 
   client.on('disconnect', () => {
