@@ -36,10 +36,9 @@ const saveMessage = (sender, tweet, roomId) => Message.create({
   userId: sender.id,
   tweet,
   roomId,
-}).then(() => (Message.findOne({
+}).then(mess => (Message.findOne({
   where: {
-    tweet,
-    roomId,
+    id: mess.id,
   },
   include: {
     as: 'sender',

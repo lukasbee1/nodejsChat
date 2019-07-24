@@ -44,7 +44,7 @@ io.on('connection', (client) => {
   client.on('message', ({ tweet, sender, roomId }) => {
     console.log(tweet);
     saveMessage(sender, tweet, roomId).then((mess) => {
-      io.sockets.in(roomId).emit('reply', mess);
+      io.sockets.in(roomId).emit('reply', mess, roomId);
     });
   });
 

@@ -5,10 +5,14 @@ const RoomModel = require('../models/Room');
 // const SocketModel = require('../models/Socket');
 
 const sequelize = new Sequelize('chatdb', 'maksim', 'pass', {
-  host: 'localhost',
+  host: 'database',
   dialect: 'mysql',
+  define: {
+    charset: 'utf8',
+    collate: 'utf8_general_ci',
+    timestamps: true,
+  },
 });
-
 const User = UserModel(sequelize, Sequelize);
 const Message = MessageModel(sequelize, Sequelize);
 const Room = RoomModel(sequelize, Sequelize);

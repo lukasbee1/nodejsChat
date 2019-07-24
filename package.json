@@ -10,6 +10,7 @@
   },
   "scripts": {
     "start": "nodemon src/socket_server.js",
+    "startProd": "node src/socket_server.js",
     "test": "jest --coverage",
     "lint": "eslint ./src",
     "lint:f": "eslint ./src --fix"

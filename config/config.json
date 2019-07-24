@@ -3,23 +3,16 @@
     "username": "maksim",
     "password": "pass",
     "database": "chatdb",
-    "host": "127.0.0.1",
-    "dialect": "mysql",
-    "operatorsAliases": false
-  },
-  "test": {
-    "username": "root",
-    "password": null,
-    "database": "database_test",
-    "host": "127.0.0.1",
+    "host": "database",
     "dialect": "mysql",
     "operatorsAliases": false
   },
   "production": {
-    "username": "root",
-    "password": null,
-    "database": "database_production",
-    "host": "127.0.0.1",
+    "username": "maksim",
+    "password": "pass",
+    "database": "chatdb",
+    "host": "database",
+    
     "dialect": "mysql",
     "operatorsAliases": false
   }

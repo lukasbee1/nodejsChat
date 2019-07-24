@@ -1,0 +1,34 @@
+version: '3.3'
+networks:
+    app-tier:
+        driver: bridge
+services:
+  nodejschat:
+    image: node:latest
+    build: .
+    networks:
+      - app-tier
+    environment:
+      NODE_ENV: production
+    ports:
+      - 8080:8080
+  database:
+    image: mysql:5.7
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    networks:
+      - app-tier
+    environment:
+      MYSQL_DATABASE: 'chatdb'
+      MYSQL_USER: 'maksim'
+      MYSQL_PASSWORD: 'pass'
+      MYSQL_ROOT_PASSWORD: 'pass'
+    ports:
+      - '33060:33060'
+    expose:
+      - '33060'
+    volumes:
+      - chatdb:/var/lib/mysql
+# Names our volume
+volumes:
+  chatdb:
