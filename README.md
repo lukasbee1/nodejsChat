@@ -7,3 +7,7 @@ Install
 Run Server
 
 	$ sudo docker-compose up
+
+Restart
+	$ sudo docker-compose down
+	$ sudo docker-compose up --build
